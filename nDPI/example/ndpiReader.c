@@ -82,7 +82,6 @@ static time_t capture_for = 0;
 static time_t capture_until = 0;
 
 char *a_dev = NULL, *b_dev = NULL, c;
-u_int8_t pfverbose = 0, use_pfring_send = 0;
 int a_ifindex, b_ifindex;
 int bind_core = -1;
 u_int16_t watermark = 1;
@@ -1808,10 +1807,8 @@ void test_lib() {
 
 /* ***************************************************** */
 void my_sigalarm(int sig) {
-  char buf[32];
-
-  pfring_format_numbers((double)num_sent, buf, sizeof(buf), 0),
-  printf("%s pps\n", buf);
+  
+  printf("%u pps\n", num_sent);
   num_sent = 0;
   alarm(1);
   signal(SIGALRM, my_sigalarm);
