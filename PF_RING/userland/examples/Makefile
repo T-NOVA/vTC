@@ -22,8 +22,9 @@ DNA_DEFINE = #-DENABLE_DNA_SUPPORT
 #
 # PF_RING aware libpcap
 #
+HOME = $(shell echo ~)
 O_FLAG     = -O2 -DHAVE_PF_RING
-EXTRA_LIBS = /home/ubuntu/nDPI/src/lib/.libs/libndpi.a -ljson-c
+EXTRA_LIBS = $(HOME)/vtc/nDPI/src/lib/.libs/libndpi.a -ljson-c -lcurl
 PCAPDIR    = ../libpcap
 LIBPCAP    = ${PCAPDIR}/libpcap.a  ${EXTRA_LIBS}
 
@@ -31,7 +32,7 @@ LIBPCAP    = ${PCAPDIR}/libpcap.a  ${EXTRA_LIBS}
 # Search directories
 #
 PFRING_KERNEL=../../kernel
-INCLUDE    = -I${PFRING_KERNEL} -I${PFRING_KERNEL}/plugins -I${PFRINGDIR} -I${PCAPDIR} -Ithird-party -I/home/ubuntu/nDPI/src/include -I/home/ubuntu/nDPI
+INCLUDE    = -I${PFRING_KERNEL} -I${PFRING_KERNEL}/plugins -I${PFRINGDIR} -I${PCAPDIR} -Ithird-party -I$(HOME)/vtc/nDPI/src/include -I$(HOME)/vtc/nDPI
 
 #
 # C compiler and flags

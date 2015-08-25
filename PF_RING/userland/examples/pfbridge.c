@@ -40,6 +40,7 @@
 #include <net/ethernet.h>
 
 #include <json-c/json.h>
+#include <curl/curl.h>
 
 #include <signal.h>
 #include <pthread.h>
@@ -63,7 +64,7 @@
 #define IDLE_SCAN_PERIOD           10 
 #define MAX_NUM_READER_THREADS     16
 
-u_int32_t num_sent = 0;
+u_int32_t num_sent = 0, num_sent_bittor = 0, num_sent_http = 0;
 
 static u_int32_t detection_tick_resolution = 1000;
 static u_int8_t live_capture = 0, full_http_dissection = 1;
@@ -974,10 +975,26 @@ void printHelp(void) {
 
 void my_sigalarm(int sig) {
   char buf[32];
-
+  
+  char postthis[200];
+  CURL *curl;
+  curl_global_init(CURL_GLOBAL_ALL);
+  curl = curl_easy_init();
+  //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
+  curl_easy_setopt(curl, CURLOPT_URL, "http://143.233.227.108:8086/write?db=flows");
+  curl_easy_setopt(curl, CURLOPT_POST, 1);
+  sprintf(postthis, "num_packets_all,name=all value=%u \n num_packets_bittorrent,name=all value=%u \n num_packets_http,name=all value=%u"
+  ,num_sent,num_sent_bittor,num_sent_http);
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postthis);
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postthis));
+  curl_easy_perform(curl);
+  curl_easy_cleanup(curl);
+  
   pfring_format_numbers((double)num_sent, buf, sizeof(buf), 0),
   printf("%s pps\n", buf);
   num_sent = 0;
+  num_sent_bittor = 0;
+  num_sent_http = 0;
   alarm(1);
   signal(SIGALRM, my_sigalarm);
 }
@@ -1295,6 +1312,10 @@ int main(int argc, char* argv[]) {
     bind2core(bind_core);
 
 	char *unk = "Unknown";
+
+
+  
+  
 	
   while(1) {
     u_char *buffer;
@@ -1323,8 +1344,14 @@ int main(int argc, char* argv[]) {
 		int appid = 0;
 		
 		if(proto_app != NULL){
-		if(strcmp(proto_app, "HTTP") == 0) appid = 1;
-		  else if(strcmp(proto_app, "Bittorrent")==0 ) appid = 2;
+		if(strcmp(proto_app, "HTTP") == 0){
+				appid = 1;
+				num_sent_http += 1;
+			}
+		  else if(strcmp(proto_app, "Bittorrent")==0 ){
+				appid = 2;
+				num_sent_bittor += 1;
+			}
 		  else if(strcmp(proto_app,"Facebook")==0) appid = 3;
 		  else if(strcmp(proto_app,"YouTube")==0) appid = 4;
 		  else if(strcmp(proto_app,"Quake")==0) appid = 5;
@@ -1341,8 +1368,8 @@ int main(int argc, char* argv[]) {
 				printf("rule applied!!\n");
 			}
 		  }
-	  }
-  }
+		}
+	}
 		
 		
 		
