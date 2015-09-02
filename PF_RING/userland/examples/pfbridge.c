@@ -1006,7 +1006,7 @@ void my_sigalarm(int sig) {
   mbits_packets_apple,name=all value=%u  \n mbits_packets_icloud,name=all value=%u \n mbits_packets_viber,name=all value=%u \n mbits_packets_dns,name=all value=%u"
   ,byt_sent,byt_sent_bittor,byt_sent_http,byt_sent_skype,byt_sent_twit,byt_sent_youtube
   ,byt_sent_google,byt_sent_dropb,byt_sent_apple,byt_sent_icloud,byt_sent_viber,byt_sent_dns);
-  printf("%s\n",postthis);
+  //printf("%s\n",postthis);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postthis);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postthis));
   curl_easy_perform(curl);
