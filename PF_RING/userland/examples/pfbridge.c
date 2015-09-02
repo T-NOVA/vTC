@@ -64,7 +64,9 @@
 #define IDLE_SCAN_PERIOD           10 
 #define MAX_NUM_READER_THREADS     16
 
-u_int32_t num_sent = 0, num_sent_bittor = 0, num_sent_http = 0;
+u_int32_t num_sent = 0, byt_sent = 0, byt_sent_bittor = 0, byt_sent_http = 0, byt_sent_skype = 0, byt_sent_twit = 0,
+byt_sent_youtube = 0, byt_sent_google = 0, byt_sent_dns = 0, byt_sent_dropb = 0, byt_sent_apple = 0; byt_sent_icloud = 0,
+byt_sent_viber = 0, byt_sent_spot = 0;
 
 static u_int32_t detection_tick_resolution = 1000;
 static u_int8_t live_capture = 0, full_http_dissection = 1;
@@ -971,20 +973,40 @@ void printHelp(void) {
   printf("-w <watermark>  Watermark\n");
 }
 
-/* ******************************** */
+/* ******************************** */ 
 
 void my_sigalarm(int sig) {
   char buf[32];
   
-  char postthis[200];
+  char postthis[850];
   CURL *curl;
   curl_global_init(CURL_GLOBAL_ALL);
   curl = curl_easy_init();
   //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
   curl_easy_setopt(curl, CURLOPT_URL, "http://143.233.227.108:8086/write?db=flows");
   curl_easy_setopt(curl, CURLOPT_POST, 1);
-  sprintf(postthis, "num_packets_all,name=all value=%u \n num_packets_bittorrent,name=all value=%u \n num_packets_http,name=all value=%u"
-  ,num_sent,num_sent_bittor,num_sent_http);
+  
+  //double dbyt_sent_bittor = 0, dbyt_sent_http, dbyt_sent_skype
+  byt_sent = (byt_sent*8)/1000000;
+  byt_sent_bittor = (byt_sent_bittor*8)/1000000;
+  byt_sent_http = (byt_sent_http*8)/1000000;
+  byt_sent_skype = (byt_sent_skype*8)/1000000;
+  byt_sent_twit = (byt_sent_twit*8)/1000000;
+  byt_sent_youtube = (byt_sent_youtube*8)/1000000;
+  byt_sent_google = (byt_sent_google*8)/1000000;
+  byt_sent_dropb = (byt_sent_dropb*8)/1000000;
+  byt_sent_apple = (byt_sent_apple*8)/1000000;
+  byt_sent_icloud = (byt_sent_icloud*8)/1000000;
+  byt_sent_viber = (byt_sent_viber*8)/1000000;
+  byt_sent_dns = (byt_sent_dns*8)/1000000;
+  
+  sprintf(postthis, "mbits_packets_all,name=all value=%u \n mbits_packets_bittorrent,name=all value=%u \n \
+  mbits_packets_http,name=all value=%u  \n mbits_packets_skype,name=all value=%u \n mbits_packets_twitter,name=all value=%u \n \
+  mbits_packets_youtube,name=all value=%u  \n mbits_packets_google,name=all value=%u \n mbits_packets_dropbox,name=all value=%u \n \
+  mbits_packets_apple,name=all value=%u  \n mbits_packets_icloud,name=all value=%u \n mbits_packets_viber,name=all value=%u \n mbits_packets_dns,name=all value=%u"
+  ,byt_sent,byt_sent_bittor,byt_sent_http,byt_sent_skype,byt_sent_twit,byt_sent_youtube
+  ,byt_sent_google,byt_sent_dropb,byt_sent_apple,byt_sent_icloud,byt_sent_viber,byt_sent_dns);
+  printf("%s\n",postthis);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postthis);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postthis));
   curl_easy_perform(curl);
@@ -993,8 +1015,18 @@ void my_sigalarm(int sig) {
   pfring_format_numbers((double)num_sent, buf, sizeof(buf), 0),
   printf("%s pps\n", buf);
   num_sent = 0;
-  num_sent_bittor = 0;
-  num_sent_http = 0;
+  byt_sent = 0;
+  byt_sent_bittor = 0;
+  byt_sent_http = 0;
+  byt_sent_skype = 0;
+  byt_sent_twit = 0;
+  byt_sent_youtube = 0;
+  byt_sent_google = 0;
+  byt_sent_dropb = 0;
+  byt_sent_apple = 0;
+  byt_sent_icloud = 0;
+  byt_sent_viber = 0;
+  byt_sent_dns = 0;
   alarm(1);
   signal(SIGALRM, my_sigalarm);
 }
@@ -1082,6 +1114,7 @@ static unsigned int packet_processing(u_int16_t thread_id,
     ndpi_thread_info[thread_id].stats.total_wire_bytes += rawsize + 24 /* CRC etc */, ndpi_thread_info[thread_id].stats.total_ip_bytes += rawsize;
     ndpi_flow = flow->ndpi_flow;
     flow->packets++, flow->bytes += rawsize;
+	byt_sent += rawsize;
     flow->last_seen = time;
   } else {
     return(0);
@@ -1128,8 +1161,8 @@ static unsigned int packet_processing(u_int16_t thread_id,
        && full_http_dissection) {
 	   
       char *method;
-      printf("[URL] %s\n", ndpi_get_http_url(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow));
-      printf("[Content-Type] %s\n", ndpi_get_http_content_type(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow));
+      //printf("[URL] %s\n", ndpi_get_http_url(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow));
+      //printf("[Content-Type] %s\n", ndpi_get_http_content_type(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow));
       switch(ndpi_get_http_method(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow)) {
       case HTTP_METHOD_OPTIONS: method = "HTTP_METHOD_OPTIONS"; break;
       case HTTP_METHOD_GET: method = "HTTP_METHOD_GET"; break;
@@ -1141,7 +1174,7 @@ static unsigned int packet_processing(u_int16_t thread_id,
       case HTTP_METHOD_CONNECT: method = "HTTP_METHOD_CONNECT"; break;
       default: method = "HTTP_METHOD_UNKNOWN"; break;
       }
-      printf("[Method] %s\n", method);
+      //printf("[Method] %s\n", method);
     }
 //#endif
 
@@ -1346,16 +1379,47 @@ int main(int argc, char* argv[]) {
 		if(proto_app != NULL){
 		if(strcmp(proto_app, "HTTP") == 0){
 				appid = 1;
-				num_sent_http += 1;
+				byt_sent_http += hdr.caplen;
 			}
-		  else if(strcmp(proto_app, "Bittorrent")==0 ){
+		  else if(strcmp(proto_app, "BitTorrent")==0 ){
 				appid = 2;
-				num_sent_bittor += 1;
+				byt_sent_bittor += hdr.caplen;
 			}
 		  else if(strcmp(proto_app,"Facebook")==0) appid = 3;
-		  else if(strcmp(proto_app,"YouTube")==0) appid = 4;
+		  else if(strcmp(proto_app,"YouTube")==0){
+				appid = 4;
+				byt_sent_youtube += hdr.caplen;
+			}	
 		  else if(strcmp(proto_app,"Quake")==0) appid = 5;
 		  else if(strcmp(proto_app,"MEOGO")==0) appid = 6;
+		  else if(strcmp(proto_app,"Skype")==0){
+				
+				byt_sent_skype += hdr.caplen;
+			}
+		  else if(strcmp(proto_app,"Twitter")==0){
+				
+				byt_sent_twit += hdr.caplen;
+			}
+		  else if(strcmp(proto_app,"Google")==0){
+				
+				byt_sent_google += hdr.caplen;
+			}
+		  else if(strcmp(proto_app,"DropBox")==0){
+				
+				byt_sent_dropb += hdr.caplen;
+			}
+		  else if(strcmp(proto_app,"Apple")==0){
+				
+				byt_sent_apple += hdr.caplen;
+			}
+		  else if(strcmp(proto_app,"AppleiCloud")==0){
+				
+				byt_sent_icloud += hdr.caplen;
+			}
+		  else if(strcmp(proto_app,"Viber")==0){
+				
+				byt_sent_viber += hdr.caplen;
+			}
 		}
 		
 	  if(rules_size > 0){
