@@ -1012,7 +1012,7 @@ void my_sigalarm(int sig) {
   //curl_easy_perform(curl);
   //curl_easy_cleanup(curl);
   
-  pfring_format_numbers((double)num_sent, buf, sizeof(buf), 0),
+  pfring_format_numbers((double)num_sent, buf, sizeof(buf), 0), 
   printf("%s pps\n", buf);
   num_sent = 0;
   byt_sent = 0;
