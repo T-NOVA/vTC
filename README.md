@@ -2,7 +2,7 @@
 
 # Install necessary libraries
 
-sudo apt-get install libtool pkg-config gcc libpcap-dev libnuma-dev linux-headers-$(uname -r)
+sudo apt-get install libtool pkg-config gcc libpcap-dev libnuma-dev linux-headers-$(uname -r) libjson0-dev libcurl4-gnutls-dev
 
 # Build nDPI folder
 
@@ -13,6 +13,8 @@ cd nDPI
 sudo ./autogen.sh
 
 sudo ./configure
+
+# add on the example/Makefile at the LDFLAGS= -ljson-c
 
 sudo make
 
@@ -25,6 +27,10 @@ cd ../PF_RING
 cd kernel 
 
 sudo make
+
+sudo make install
+
+sudo insmod ./pf_ring.ko
 
 cd userland/examples
 
