@@ -1,11 +1,13 @@
 # README #
 
-# First we need to compile the nDPI library
-
-# build nDPI folder
-cd vtc
+# Install necessary libraries
 
 sudo apt-get install libtool pkg-config gcc libpcap-dev libnuma-dev linux-headers-$(uname -r)
+
+# Build nDPI folder
+
+cd vtc
+
 cd nDPI
 
 sudo ./autogen.sh
