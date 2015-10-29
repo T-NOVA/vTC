@@ -1422,6 +1422,8 @@ int main(int argc, char* argv[]) {
 			}
 		}
 		
+		
+	  appid = 1;
 	  if(rules_size > 0){
 	  
 	  if(appid > 0){
