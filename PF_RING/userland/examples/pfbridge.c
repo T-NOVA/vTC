@@ -1425,8 +1425,6 @@ int main(int argc, char* argv[]) {
 	  if(rules_size > 0){
 	  
 	  if(appid > 0){
-	    printf("rule applied!!\n");
-	    ip_header->tos = class_rules[i].tos;
 		//printf("AppID %u\n", appid);
 		  for (i = 0; i < rules_size; i++){
 			if(ip_header->daddr == class_rules[i].ip && class_rules[i].ruleid == appid){
