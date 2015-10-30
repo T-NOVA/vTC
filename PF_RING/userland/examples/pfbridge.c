@@ -1368,10 +1368,6 @@ int main(int argc, char* argv[]) {
 		 ip_header->frag_off, ip_header->tot_len, hdr.caplen);
 		
 		
-		//if(proto_app != NULL)
-		//	if(strcmp(proto_app, unk) != 0) printf("proto_app %s\n", proto_app);
-			
-		//ip_header->tos = 5;
 		
 		int i;
 		int appid = 0;
@@ -1429,7 +1425,7 @@ int main(int argc, char* argv[]) {
 	  if(appid > 0){
 		//printf("AppID %u\n", appid);
 		  for (i = 0; i < rules_size; i++){
-			if(ip_header->daddr == class_rules[i].ip && class_rules[i].ruleid == appid){
+			if(ip_header->saddr == class_rules[i].ip && class_rules[i].ruleid == appid){
 				ip_header->tos = class_rules[i].tos;
 				printf("rule applied!!\n");
 			}
