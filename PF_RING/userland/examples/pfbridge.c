@@ -907,7 +907,7 @@ void *connection_handler(void *threadid)
 		  struct class_rule rule;
 		  rule.ip = ipAddress;
 		  rule.ruleid = atoi(json_object_get_string(ruleid_obj_name));
-		  rule.tos = atoi(json_object_get_string(tos_obj_name))*4;
+		  rule.tos = atoi(json_object_get_string(tos_obj_name));
 		  
 		  //printf("ip %u id %u tos %u\n",rule.ip, rule.ruleid, rule.tos);
 		  rules_size++;
