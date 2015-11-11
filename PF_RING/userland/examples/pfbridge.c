@@ -976,9 +976,9 @@ void printHelp(void) {
 /* ******************************** */ 
 
 void my_sigalarm(int sig) {
-  char buf[32];
+  //char buf[32];
   
-  char postthis[850];
+  //char postthis[850];
   //CURL *curl;
   //curl_global_init(CURL_GLOBAL_ALL);
   //curl = curl_easy_init();
@@ -987,7 +987,7 @@ void my_sigalarm(int sig) {
   //curl_easy_setopt(curl, CURLOPT_POST, 1);
   
   //double dbyt_sent_bittor = 0, dbyt_sent_http, dbyt_sent_skype
-  byt_sent = (byt_sent*8)/1000000;
+  /*byt_sent = (byt_sent*8)/1000000;
   byt_sent_bittor = (byt_sent_bittor*8)/1000000;
   byt_sent_http = (byt_sent_http*8)/1000000;
   byt_sent_skype = (byt_sent_skype*8)/1000000;
@@ -998,7 +998,7 @@ void my_sigalarm(int sig) {
   byt_sent_apple = (byt_sent_apple*8)/1000000;
   byt_sent_icloud = (byt_sent_icloud*8)/1000000;
   byt_sent_viber = (byt_sent_viber*8)/1000000;
-  byt_sent_dns = (byt_sent_dns*8)/1000000;
+  byt_sent_dns = (byt_sent_dns*8)/1000000;*/
   
   //sprintf(postthis, "mbits_packets_all,name=all value=%u \n mbits_packets_bittorrent,name=all value=%u \n \
   mbits_packets_http,name=all value=%u  \n mbits_packets_skype,name=all value=%u \n mbits_packets_twitter,name=all value=%u \n \
@@ -1012,9 +1012,9 @@ void my_sigalarm(int sig) {
   //curl_easy_perform(curl);
   //curl_easy_cleanup(curl);
   
-  pfring_format_numbers((double)num_sent, buf, sizeof(buf), 0),
-  printf("%s pps\n", buf);
-  num_sent = 0;
+  //pfring_format_numbers((double)num_sent, buf, sizeof(buf), 0),
+  //printf("%s pps\n", buf);
+  /*num_sent = 0;
   byt_sent = 0;
   byt_sent_bittor = 0;
   byt_sent_http = 0;
@@ -1026,9 +1026,9 @@ void my_sigalarm(int sig) {
   byt_sent_apple = 0;
   byt_sent_icloud = 0;
   byt_sent_viber = 0;
-  byt_sent_dns = 0;
-  alarm(1);
-  signal(SIGALRM, my_sigalarm);
+  byt_sent_dns = 0;*/
+  //alarm(1);
+  //signal(SIGALRM, my_sigalarm);
 }
 
 void *processing_thread(void *_thread_id) {
