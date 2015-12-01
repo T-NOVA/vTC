@@ -986,7 +986,7 @@ void my_sigalarm(int sig) {
   curl_easy_setopt(curl, CURLOPT_URL, "http://143.233.227.88:8086/write?db=flows");
   curl_easy_setopt(curl, CURLOPT_POST, 1);
   
-  double dbyt_sent_bittor = 0, dbyt_sent_http, dbyt_sent_skype
+  double dbyt_sent_bittor = 0, dbyt_sent_http, dbyt_sent_skype = 0;
   byt_sent = (byt_sent*8)/1000000;
   byt_sent_bittor = (byt_sent_bittor*8)/1000000;
   byt_sent_http = (byt_sent_http*8)/1000000;
@@ -1124,6 +1124,7 @@ static unsigned int packet_processing(u_int16_t thread_id,
   
   if(flow->detection_completed) {
 	proto_app = ndpi_get_proto_name(ndpi_thread_info[0].ndpi_struct, flow->detected_protocol);
+	printf("proto name %s\n", proto_app);
 	return(0);
 	}
 

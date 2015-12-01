@@ -22,9 +22,8 @@ DNA_DEFINE = #-DENABLE_DNA_SUPPORT
 #
 # PF_RING aware libpcap
 #
-HOME = $(shell echo ~)
 O_FLAG     = -O2 -DHAVE_PF_RING
-EXTRA_LIBS = $(HOME)/vtc/nDPI/src/lib/.libs/libndpi.a -ljson-c -lcurl
+EXTRA_LIBS=/home/ubuntu/vtc/nDPI/src/lib/.libs/libndpi.a -ljson-c -lcurl
 PCAPDIR    = ../libpcap
 LIBPCAP    = ${PCAPDIR}/libpcap.a  ${EXTRA_LIBS}
 
@@ -32,7 +31,7 @@ LIBPCAP    = ${PCAPDIR}/libpcap.a  ${EXTRA_LIBS}
 # Search directories
 #
 PFRING_KERNEL=../../kernel
-INCLUDE    = -I${PFRING_KERNEL} -I${PFRING_KERNEL}/plugins -I${PFRINGDIR} -I${PCAPDIR} -Ithird-party -I$(HOME)/vtc/nDPI/src/include -I$(HOME)/vtc/nDPI
+INCLUDE    = -I${PFRING_KERNEL} -I${PFRING_KERNEL}/plugins -I${PFRINGDIR} -I${PCAPDIR} -Ithird-party/ -I/home/ubuntu/vtc/nDPI/src/include -I/home/ubuntu/vtc/nDPI
 
 #
 # C compiler and flags
@@ -41,7 +40,7 @@ INCLUDE    = -I${PFRING_KERNEL} -I${PFRING_KERNEL}/plugins -I${PFRINGDIR} -I${PC
 # CROSS_COMPILE=arm-mv5sft-linux-gnueabi-
 #
 CC         = ${CROSS_COMPILE}gcc #--platform=native
-CFLAGS     =  ${O_FLAG} -Wall ${INCLUDE} ${DNA_DEFINE} -D HAVE_ZERO -D ENABLE_BPF -D HAVE_LIBNUMA -O2 # -g
+CFLAGS     = -march=corei7 -mtune=corei7  ${O_FLAG} -Wall ${INCLUDE} ${DNA_DEFINE} -D HAVE_ZERO -D ENABLE_BPF -D HAVE_LIBNUMA -O2 # -g
 # LDFLAGS  =
 
 #
