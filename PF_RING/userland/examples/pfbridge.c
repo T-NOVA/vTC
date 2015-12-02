@@ -1421,6 +1421,9 @@ int main(int argc, char* argv[]) {
 				
 				byt_sent_viber += hdr.caplen;
 			}
+		  else if(strcmp(proto_app,"RTP")==0){
+				appid = 7;
+		  }
 		}
 		
 	  if(rules_size > 0){
