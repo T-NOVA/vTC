@@ -979,7 +979,7 @@ void my_sigalarm(int sig) {
   char buf[32];
   
   char postthis[850];
-  CURL *curl;
+  /*CURL *curl;
   curl_global_init(CURL_GLOBAL_ALL);
   curl = curl_easy_init();
   curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
@@ -1010,7 +1010,7 @@ void my_sigalarm(int sig) {
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postthis);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postthis));
   curl_easy_perform(curl);
-  curl_easy_cleanup(curl);
+  curl_easy_cleanup(curl);*/
   
   pfring_format_numbers((double)num_sent, buf, sizeof(buf), 0),
   printf("%s pps\n", buf);
@@ -1216,6 +1216,36 @@ static unsigned int packet_processing(u_int16_t thread_id,
   return 0;
 }
 /* ****************************************************** */
+
+static int cksum(u_short *addr, int len)
+{
+register int nleft = len;
+register u_short *w = addr;
+register int sum = 0;
+u_short answer = 0;
+
+/*
+ * Our algorithm is simple, using a 32 bit accumulator (sum), we add
+ * sequential 16 bit words to it, and at the end, fold back all the
+ * carry bits from the top 16 bits into the lower 16 bits.
+ */
+while (nleft > 1)  {
+    sum += *w++;
+    nleft -= 2;
+}
+
+/* mop up an odd byte, if necessary */
+if (nleft == 1) {
+    *(u_char *)(&answer) = *(u_char *)w ;
+    sum += answer;
+}
+
+/* add back carry outs from top 16 bits to low 16 bits */
+sum = (sum >> 16) + (sum & 0xffff); /* add hi 16 to low 16 */
+sum += (sum >> 16);         /* add carry */
+answer = ~sum;              /* truncate to 16 bits */
+return(answer);
+}
 
 int main(int argc, char* argv[]) {
   pfring *a_ring, *b_ring;
@@ -1425,23 +1455,25 @@ int main(int argc, char* argv[]) {
 				appid = 7;
 		  }
 		}
-		
+
 	  if(rules_size > 0){
-	  
+  
 	  if(appid > 0){
 		//printf("AppID %u\n", appid);
 		  for (i = 0; i < rules_size; i++){
 			if(ip_header->daddr == class_rules[i].ip && class_rules[i].ruleid == appid){
 				ip_header->tos = class_rules[i].tos;
+				ip_header->check = 0;
+				ip_header->check = cksum((struct ip_header *)ip_header, 4* ip_header->ihl); 
 				printf("rule applied!!\n");
 			}
 		  }
 		}
 	}
-		
-		
-		
-		
+
+	printf("checksum 0x%x\n", ntohs(ip_header->check));
+
+
       if(use_pfring_send) {
 
 	rc = pfring_send(b_ring, (char *) buffer, hdr.caplen, 1);
