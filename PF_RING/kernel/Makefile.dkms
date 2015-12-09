@@ -1,0 +1,32 @@
+all: install
+
+add: remove
+	\/bin/rm -rf /usr/src/pfring-6.1.1
+	mkdir /usr/src/pfring-6.1.1
+	cp -r Makefile dkms.conf pf_ring.c linux/ /usr/src/pfring-6.1.1
+	dkms add -m pfring -v 6.1.1
+
+build: add
+	dkms build -m pfring -v 6.1.1
+
+install: build
+	dkms install --force -m pfring -v 6.1.1
+
+deb: add add_deb install
+	dkms mkdeb -m pfring -v 6.1.1 --source-only
+
+rpm: add add_rpm install
+	dkms mkrpm -m pfring -v 6.1.1 --source-only
+
+add_rpm:
+	cp -r pfring-dkms-*.spec /usr/src/pfring-6.1.1/
+
+add_deb:
+	cp -r pfring-dkms-mkdeb /usr/src/pfring-6.1.1/
+
+remove:
+	-dkms remove -m pfring -v 6.1.1 --all
+
+veryclean: remove
+	\/bin/rm -fr /usr/src/pfring-6.1.1
+	

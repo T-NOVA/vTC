@@ -21,6 +21,9 @@
 /* Have PTHREAD_PRIO_INHERIT. */
 #undef HAVE_PTHREAD_PRIO_INHERIT
 
+/* libc has pthread_setaffinity_np */
+#undef HAVE_PTHREAD_SETAFFINITY_NP
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -46,11 +49,11 @@
    */
 #undef LT_OBJDIR
 
-/* SVN Release */
-#undef NDPI_GIT_RELEASE
+/* Last GIT change */
+#undef NDPI_GIT_DATE
 
-/* Last SVN change */
-#undef NDPI_SVN_DATE
+/* GIT Release */
+#undef NDPI_GIT_RELEASE
 
 /* Name of package */
 #undef PACKAGE

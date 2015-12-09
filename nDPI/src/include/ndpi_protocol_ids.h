@@ -31,7 +31,7 @@
 #define __NDPI_PROTOCOLS_DEFAULT_H__
 
 #define NDPI_DETECTION_SUPPORT_IPV6
-#define NDPI_PROTOCOL_HISTORY_SIZE				3
+#define NDPI_PROTOCOL_HISTORY_SIZE				2
 
 #define NDPI_PROTOCOL_UNKNOWN					0
 
@@ -166,7 +166,7 @@
 #define NDPI_PROTOCOL_WEBEX					141
 #define NDPI_PROTOCOL_VIBER					144
 #define NDPI_PROTOCOL_RADIUS					146
-#define NDPI_PROTOCOL_WINDOWS_UPDATE				147 /* Thierry Laurion */
+#define NDPI_SERVICE_WINDOWS_UPDATE				147
 #define NDPI_PROTOCOL_TEAMVIEWER				148 /* xplico.org */
 #define NDPI_PROTOCOL_LOTUS_NOTES				150
 #define NDPI_PROTOCOL_SAP					151
@@ -197,6 +197,14 @@
 #define NDPI_PROTOCOL_PANDO					183 /* Tomasz Bujlow <tomasz@skatnet.dk> */
 #define NDPI_PROTOCOL_VHUA                                      184
 #define NDPI_PROTOCOL_TELEGRAM				        185 /* Gianluca Costa <g.costa@xplico.org> */
+#define NDPI_PROTOCOL_QUIC				        188 /* Andrea Buscarinu <andrea.buscarinu@gmail.com> - Michele Campus <michelecampus5@gmail.com> */
+#define NDPI_PROTOCOL_WHATSAPP_VOICE			        189
+#define NDPI_PROTOCOL_STARCRAFT 			        213 /* Matteo Bracci <matteobracci1@gmail.com> */
+#define NDPI_PROTOCOL_TEREDO 			                214
+#define NDPI_PROTOCOL_HEP 			                216 /* Sipcapture.org QXIP BV */
+#define NDPI_PROTOCOL_UBNTAC2					217 /* Ubiquity UBNT AirControl 2 - Thomas Fjellstrom <thomas+ndpi@fjellstrom.ca> */
+#define NDPI_PROTOCOL_MS_LYNC 			                218
+
 
 
 #define NDPI_CONTENT_AVI				39
@@ -218,7 +226,7 @@
 #define NDPI_SERVICE_GOOGLE				126
 #define NDPI_SERVICE_NETFLIX				133
 #define NDPI_SERVICE_LASTFM				134
-#define NDPI_SERVICE_GROOVESHARK			135
+#define NDPI_SERVICE_WAZE        			135
 #define NDPI_SERVICE_APPLE				140
 #define NDPI_SERVICE_WHATSAPP				142
 #define NDPI_SERVICE_APPLE_ICLOUD			143
@@ -234,10 +242,34 @@
 #define NDPI_SERVICE_VIBER				NDPI_PROTOCOL_VIBER /* Tomasz Bujlow <tomasz@skatnet.dk> */
 #define NDPI_SERVICE_YAHOO				NDPI_PROTOCOL_YAHOO /* Tomasz Bujlow <tomasz@skatnet.dk> */
 #define NDPI_SERVICE_PANDORA     			187
+#define NDPI_PROTOCOL_EAQ        			190
+#define NDPI_SERVICE_TIMMEU        			191
+#define NDPI_SERVICE_TORCEDOR        			192
+#define NDPI_SERVICE_KAKAOTALK        			193 /* KakaoTalk Chat (no voice call) */
+#define NDPI_SERVICE_KAKAOTALK_VOICE  			194 /* KakaoTalk Voice */
+#define NDPI_SERVICE_TWITCH                             195 /* Edoardo Dominici <edoaramis@gmail.com>  */
+#define NDPI_SERVICE_QUICKPLAY                          196 /* Streaming service used by various services such as hooq.tv  */
+#define NDPI_SERVICE_TIM                                197 /* Traffic for tim.com.br and tim.it */
+#define NDPI_PROTOCOL_MPEGTS        			198
+#define NDPI_SERVICE_SNAPCHAT                           199
+#define NDPI_SERVICE_SIMET                              200
+#define NDPI_SERVICE_OPENSIGNAL                         201
+#define NDPI_SERVICE_99TAXI                             202
+#define NDPI_SERVICE_EASYTAXI                           203
+#define NDPI_SERVICE_GLOBOTV                            204
+#define NDPI_SERVICE_TIMSOMDECHAMADA                    205
+#define NDPI_SERVICE_TIMMENU                            206
+#define NDPI_SERVICE_TIMPORTASABERTAS                   207
+#define NDPI_SERVICE_TIMRECARGA                         208
+#define NDPI_SERVICE_TIMBETA                            209
+#define NDPI_SERVICE_DEEZER                             210
+#define NDPI_SERVICE_INSTAGRAM                          211 /* Andrea Buscarinu <andrea.buscarinu@gmail.com> */
+#define NDPI_SERVICE_MICROSOFT                          212
+#define NDPI_SERVICE_HOTSPOT_SHIELD                     215
 
-/* UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE (NDPI_SERVICE_PANDORA) */
-#define NDPI_LAST_IMPLEMENTED_PROTOCOL			187
+/* UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE */
+#define NDPI_LAST_IMPLEMENTED_PROTOCOL			NDPI_PROTOCOL_MS_LYNC
 
-#define NDPI_MAX_SUPPORTED_PROTOCOLS (NDPI_LAST_IMPLEMENTED_PROTOCOL + 1)
+#define NDPI_MAX_SUPPORTED_PROTOCOLS                    (NDPI_LAST_IMPLEMENTED_PROTOCOL + 1)
 #define NDPI_MAX_NUM_CUSTOM_PROTOCOLS                   (NDPI_NUM_BITS-NDPI_LAST_IMPLEMENTED_PROTOCOL)
 #endif

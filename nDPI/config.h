@@ -8,7 +8,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* The JSON-C library is present */
-/* #undef HAVE_JSON_C */
+#define HAVE_JSON_C 1
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
@@ -21,6 +21,9 @@
 
 /* Have PTHREAD_PRIO_INHERIT. */
 #define HAVE_PTHREAD_PRIO_INHERIT 1
+
+/* libc has pthread_setaffinity_np */
+#define HAVE_PTHREAD_SETAFFINITY_NP 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -47,11 +50,11 @@
    */
 #define LT_OBJDIR ".libs/"
 
-/* SVN Release */
-#define NDPI_GIT_RELEASE "r1.5.2 (993665726aa807ff64ca28776af6aee43b19b66d:20150525)"
+/* Last GIT change */
+#define NDPI_GIT_DATE "Wed Dec  9 20:23:07 CET 2015"
 
-/* Last SVN change */
-#define NDPI_SVN_DATE ""
+/* GIT Release */
+#define NDPI_GIT_RELEASE "1.7.1"
 
 /* Name of package */
 #define PACKAGE "libndpi"
@@ -63,7 +66,7 @@
 #define PACKAGE_NAME "libndpi"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libndpi 1.5.2"
+#define PACKAGE_STRING "libndpi 1.7.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libndpi"
@@ -72,7 +75,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.5.2"
+#define PACKAGE_VERSION "1.7.1"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -82,4 +85,4 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "1.5.2"
+#define VERSION "1.7.1"

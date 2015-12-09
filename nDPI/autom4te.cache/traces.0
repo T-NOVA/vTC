@@ -1948,9 +1948,8 @@ to "yes", and re-run configure.
 END
     AC_MSG_ERROR([Your 'rm' program is bad, sorry.])
   fi
-fi
-])
-m4trace:/usr/share/aclocal-1.14/init.m4:183: -1- AC_DEFUN([_AC_AM_CONFIG_HEADER_HOOK], [# Compute $1's index in $config_headers.
+fi])
+m4trace:/usr/share/aclocal-1.14/init.m4:182: -1- AC_DEFUN([_AC_AM_CONFIG_HEADER_HOOK], [# Compute $1's index in $config_headers.
 _am_arg=$1
 _am_stamp_count=1
 for _am_header in $config_headers :; do
@@ -2848,21 +2847,23 @@ m4trace:configure.ac:10: -1- m4_pattern_allow([^PTHREAD_LIBS$])
 m4trace:configure.ac:10: -1- m4_pattern_allow([^PTHREAD_CFLAGS$])
 m4trace:configure.ac:10: -1- m4_pattern_allow([^PTHREAD_CC$])
 m4trace:configure.ac:10: -1- m4_pattern_allow([^HAVE_PTHREAD$])
-m4trace:configure.ac:21: -1- m4_pattern_allow([^NDPI_GIT_RELEASE$])
-m4trace:configure.ac:22: -1- m4_pattern_allow([^NDPI_SVN_DATE$])
-m4trace:configure.ac:75: -2- m4_pattern_allow([^HAVE_JSON_C$])
-m4trace:configure.ac:79: -1- m4_pattern_allow([^GIT_RELEASE$])
-m4trace:configure.ac:80: -1- m4_pattern_allow([^SVN_DATE$])
-m4trace:configure.ac:81: -1- m4_pattern_allow([^JSON_C_LIB$])
-m4trace:configure.ac:82: -1- m4_pattern_allow([^PCAP_INC$])
-m4trace:configure.ac:83: -1- m4_pattern_allow([^PCAP_LIB$])
-m4trace:configure.ac:85: -1- m4_pattern_allow([^LIB@&t@OBJS$])
-m4trace:configure.ac:85: -1- m4_pattern_allow([^LTLIBOBJS$])
-m4trace:configure.ac:85: -1- AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])
-m4trace:configure.ac:85: -1- m4_pattern_allow([^am__EXEEXT_TRUE$])
-m4trace:configure.ac:85: -1- m4_pattern_allow([^am__EXEEXT_FALSE$])
-m4trace:configure.ac:85: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_TRUE])
-m4trace:configure.ac:85: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_FALSE])
-m4trace:configure.ac:85: -1- _AC_AM_CONFIG_HEADER_HOOK(["$ac_file"])
-m4trace:configure.ac:85: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
-m4trace:configure.ac:85: -1- _LT_PROG_LTMAIN
+m4trace:configure.ac:27: -1- m4_pattern_allow([^NDPI_GIT_RELEASE$])
+m4trace:configure.ac:28: -1- m4_pattern_allow([^NDPI_GIT_DATE$])
+m4trace:configure.ac:84: -2- m4_pattern_allow([^HAVE_JSON_C$])
+m4trace:configure.ac:86: -2- m4_pattern_allow([^HAVE_PTHREAD_SETAFFINITY_NP$])
+m4trace:configure.ac:90: -1- m4_pattern_allow([^GIT_RELEASE$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^SVN_DATE$])
+m4trace:configure.ac:92: -1- m4_pattern_allow([^JSON_C_LIB$])
+m4trace:configure.ac:93: -1- m4_pattern_allow([^PCAP_INC$])
+m4trace:configure.ac:94: -1- m4_pattern_allow([^PCAP_LIB$])
+m4trace:configure.ac:95: -1- m4_pattern_allow([^HAVE_PTHREAD_SETAFFINITY_NP$])
+m4trace:configure.ac:97: -1- m4_pattern_allow([^LIB@&t@OBJS$])
+m4trace:configure.ac:97: -1- m4_pattern_allow([^LTLIBOBJS$])
+m4trace:configure.ac:97: -1- AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])
+m4trace:configure.ac:97: -1- m4_pattern_allow([^am__EXEEXT_TRUE$])
+m4trace:configure.ac:97: -1- m4_pattern_allow([^am__EXEEXT_FALSE$])
+m4trace:configure.ac:97: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_TRUE])
+m4trace:configure.ac:97: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_FALSE])
+m4trace:configure.ac:97: -1- _AC_AM_CONFIG_HEADER_HOOK(["$ac_file"])
+m4trace:configure.ac:97: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:97: -1- _LT_PROG_LTMAIN
