@@ -1124,7 +1124,7 @@ static unsigned int packet_processing(u_int16_t thread_id,
   
   if(flow->detection_completed) {
 	proto_app = ndpi_get_proto_name(ndpi_thread_info[0].ndpi_struct, flow->detected_protocol);
-	printf("proto name %s\n", proto_app);
+	//printf("proto name %s\n", proto_app);
 	return(0);
 	}
 
@@ -1471,7 +1471,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	printf("checksum 0x%x\n", ntohs(ip_header->check));
+	//printf("checksum 0x%x\n", ntohs(ip_header->check));
 
 
       if(use_pfring_send) {
