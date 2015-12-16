@@ -174,6 +174,7 @@ static void free_wrapper(void *freeable) {
   free(freeable);
 }
 
+// flow tracking
 typedef struct ndpi_flow {
   u_int32_t lower_ip;
   u_int32_t upper_ip;
@@ -182,7 +183,7 @@ typedef struct ndpi_flow {
   u_int8_t detection_completed, protocol;
   u_int16_t vlan_id;
   struct ndpi_flow_struct *ndpi_flow;
-  char lower_name[32], upper_name[32];
+  char lower_name[48], upper_name[48];
 
   u_int64_t last_seen;
 
@@ -190,7 +191,7 @@ typedef struct ndpi_flow {
   u_int32_t packets;
 
   // result only, not used for flow identification
-  u_int32_t detected_protocol;
+  ndpi_protocol detected_protocol;
 
   char host_server_name[256];
 
@@ -266,7 +267,7 @@ static void node_print_unknown_proto_walker(const void *node, ndpi_VISIT which, 
   struct ndpi_flow *flow = *(struct ndpi_flow**)node;
   u_int16_t thread_id = *((u_int16_t*)user_data);
 
-  if(flow->detected_protocol != 0 /* UNKNOWN */) return;
+  if(flow->detected_protocol.protocol != NDPI_PROTOCOL_UNKNOWN) return;
 
   if((which == ndpi_preorder) || (which == ndpi_leaf)) /* Avoid walking the same node multiple times */
     printFlow(thread_id, flow);
@@ -278,16 +279,14 @@ static void node_print_known_proto_walker(const void *node, ndpi_VISIT which, in
   struct ndpi_flow *flow = *(struct ndpi_flow**)node;
   u_int16_t thread_id = *((u_int16_t*)user_data);
 
-  if(flow->detected_protocol == 0 /* UNKNOWN */) return;
+  if(flow->detected_protocol.protocol == NDPI_PROTOCOL_UNKNOWN) return;
 
   if((which == ndpi_preorder) || (which == ndpi_leaf)) /* Avoid walking the same node multiple times */
     printFlow(thread_id, flow);
 }
-
 /* ***************************************************** */
 
-static unsigned int node_guess_undetected_protocol(u_int16_t thread_id,
-						   struct ndpi_flow *flow) {
+static u_int16_t node_guess_undetected_protocol(u_int16_t thread_id, struct ndpi_flow *flow) {
   flow->detected_protocol = ndpi_guess_undetected_protocol(ndpi_thread_info[thread_id].ndpi_struct,
 							   flow->protocol,
 							   ntohl(flow->lower_ip),
@@ -295,10 +294,10 @@ static unsigned int node_guess_undetected_protocol(u_int16_t thread_id,
 							   ntohl(flow->upper_ip),
 							   ntohs(flow->upper_port));
   // printf("Guess state: %u\n", flow->detected_protocol);
-  if(flow->detected_protocol != 0)
+  if(flow->detected_protocol.protocol != NDPI_PROTOCOL_UNKNOWN)
     ndpi_thread_info[thread_id].stats.guessed_flow_protocols++;
 
-  return flow->detected_protocol;
+  return(flow->detected_protocol.protocol);
 }
 
 /* ***************************************************** */
@@ -319,15 +318,15 @@ static void node_proto_guess_walker(const void *node, ndpi_VISIT which, int dept
 
   if((which == ndpi_preorder) || (which == ndpi_leaf)) { /* Avoid walking the same node multiple times */
     if(enable_protocol_guess) {
-      if(flow->detected_protocol == 0 /* UNKNOWN */) {
+      if(flow->detected_protocol.protocol == NDPI_PROTOCOL_UNKNOWN) {
 	node_guess_undetected_protocol(thread_id, flow);
 	// printFlow(thread_id, flow);
       }
     }
 
-    ndpi_thread_info[thread_id].stats.protocol_counter[flow->detected_protocol]       += flow->packets;
-    ndpi_thread_info[thread_id].stats.protocol_counter_bytes[flow->detected_protocol] += flow->bytes;
-    ndpi_thread_info[thread_id].stats.protocol_flows[flow->detected_protocol]++;
+    ndpi_thread_info[thread_id].stats.protocol_counter[flow->detected_protocol.protocol]       += flow->packets;
+    ndpi_thread_info[thread_id].stats.protocol_counter_bytes[flow->detected_protocol.protocol] += flow->bytes;
+    ndpi_thread_info[thread_id].stats.protocol_flows[flow->detected_protocol.protocol]++;
   }
 }
 
@@ -346,7 +345,7 @@ static void node_idle_scan_walker(const void *node, ndpi_VISIT which, int depth,
       /* update stats */
       node_proto_guess_walker(node, which, depth, user_data);
 
-      if (flow->detected_protocol == 0 /* UNKNOWN */ && !undetected_flows_deleted)
+      if((flow->detected_protocol.protocol == NDPI_PROTOCOL_UNKNOWN) && !undetected_flows_deleted)
         undetected_flows_deleted = 1;
 
       free_ndpi_flow(flow);
@@ -557,7 +556,7 @@ static struct ndpi_flow *get_ndpi_flow(u_int16_t thread_id,
     return flow;
   }
 }
-
+ 
 /* ***************************************************** */
 
 static struct ndpi_flow *get_ndpi_flow6(u_int16_t thread_id,
@@ -571,9 +570,9 @@ static struct ndpi_flow *get_ndpi_flow6(u_int16_t thread_id,
 
   memset(&iph, 0, sizeof(iph));
   iph.version = 4;
-  iph.saddr = iph6->ip6_src.__u6_addr.__u6_addr32[2] + iph6->ip6_src.__u6_addr.__u6_addr32[3];
-  iph.daddr = iph6->ip6_dst.__u6_addr.__u6_addr32[2] + iph6->ip6_dst.__u6_addr.__u6_addr32[3];
-  iph.protocol = iph6->ip6_ctlun.ip6_un1.ip6_un1_nxt;
+  //iph.saddr = iph6->ip6_src.__u6_addr.__u6_addr32[2] + iph6->ip6_src.__u6_addr.__u6_addr32[3];
+  //iph.daddr = iph6->ip6_dst.__u6_addr.__u6_addr32[2] + iph6->ip6_dst.__u6_addr.__u6_addr32[3];
+  //iph.protocol = iph6->ip6_ctlun.ip6_un1.ip6_un1_nxt;
 
   if(iph.protocol == 0x3C /* IPv6 destination option */) {
     u_int8_t *options = (u_int8_t*)iph6 + sizeof(const struct ndpi_ip6_hdr);
@@ -1123,68 +1122,62 @@ static unsigned int packet_processing(u_int16_t thread_id,
   
   
   if(flow->detection_completed) {
-	proto_app = ndpi_get_proto_name(ndpi_thread_info[0].ndpi_struct, flow->detected_protocol);
+	proto_app = ndpi_get_proto_name(ndpi_thread_info[0].ndpi_struct, flow->detected_protocol.protocol);
 	return(0);
 	}
 
 
-  protocol = (const u_int32_t)ndpi_detection_process_packet(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow,
-							    iph ? (uint8_t *)iph : (uint8_t *)iph6,
-							    ipsize, time, src, dst);
+  flow->detected_protocol = ndpi_detection_process_packet(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow,
+							  iph ? (uint8_t *)iph : (uint8_t *)iph6,
+							  ipsize, time, src, dst);
 
-  flow->detected_protocol = protocol;
+  //flow->detected_protocol = protocol;
   
-  if((flow->detected_protocol != NDPI_PROTOCOL_UNKNOWN)
+  if((flow->detected_protocol.protocol != NDPI_PROTOCOL_UNKNOWN)
      || ((proto == IPPROTO_UDP) && (flow->packets > 8))
      || ((proto == IPPROTO_TCP) && (flow->packets > 10))) {
     flow->detection_completed = 1;
-	
 
+    if((flow->detected_protocol.protocol == NDPI_PROTOCOL_UNKNOWN) && (ndpi_flow->num_stun_udp_pkts > 0))
+      ndpi_set_detected_protocol(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow, NDPI_PROTOCOL_STUN, NDPI_PROTOCOL_UNKNOWN);
 
-    if((flow->detected_protocol == NDPI_PROTOCOL_UNKNOWN) )
-      ndpi_int_add_connection(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow, NDPI_PROTOCOL_STUN, NDPI_REAL_PROTOCOL);
- 
-	
-	
     snprintf(flow->host_server_name, sizeof(flow->host_server_name), "%s", flow->ndpi_flow->host_server_name);
 
-    if((proto == IPPROTO_TCP) && (flow->detected_protocol != NDPI_PROTOCOL_DNS)) {
+    if((proto == IPPROTO_TCP) && (flow->detected_protocol.protocol != NDPI_PROTOCOL_DNS)) {
       snprintf(flow->ssl.client_certificate, sizeof(flow->ssl.client_certificate), "%s", flow->ndpi_flow->protos.ssl.client_certificate);
       snprintf(flow->ssl.server_certificate, sizeof(flow->ssl.server_certificate), "%s", flow->ndpi_flow->protos.ssl.server_certificate);
     }
 
-//#if 0
-    if((
-	(flow->detected_protocol == NDPI_PROTOCOL_HTTP)
-	|| (flow->detected_protocol == NDPI_SERVICE_FACEBOOK)
-	)
-       && full_http_dissection) {
-	   
-      char *method;
-      //printf("[URL] %s\n", ndpi_get_http_url(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow));
-      //printf("[Content-Type] %s\n", ndpi_get_http_content_type(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow));
-      switch(ndpi_get_http_method(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow)) {
-      case HTTP_METHOD_OPTIONS: method = "HTTP_METHOD_OPTIONS"; break;
-      case HTTP_METHOD_GET: method = "HTTP_METHOD_GET"; break;
-      case HTTP_METHOD_HEAD: method = "HTTP_METHOD_HEAD"; break;
-      case HTTP_METHOD_POST: method = "HTTP_METHOD_POST"; break;
-      case HTTP_METHOD_PUT: method = "HTTP_METHOD_PUT"; break;
-      case HTTP_METHOD_DELETE: method = "HTTP_METHOD_DELETE"; break;
-      case HTTP_METHOD_TRACE: method = "HTTP_METHOD_TRACE"; break;
-      case HTTP_METHOD_CONNECT: method = "HTTP_METHOD_CONNECT"; break;
-      default: method = "HTTP_METHOD_UNKNOWN"; break;
-      }
-      //printf("[Method] %s\n", method);
-    }
-//#endif
-
-
-    free_ndpi_flow(flow);
-
+#if 0
     if(verbose > 1) {
+      if(ndpi_is_proto(flow->detected_protocol, NDPI_PROTOCOL_HTTP)) {
+	char *method;
+	printf("[URL] %s\n", ndpi_get_http_url(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow));
+	printf("[Content-Type] %s\n", ndpi_get_http_content_type(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow));
+	switch(ndpi_get_http_method(ndpi_thread_info[thread_id].ndpi_struct, ndpi_flow)) {
+	case HTTP_METHOD_OPTIONS: method = "HTTP_METHOD_OPTIONS"; break;
+	case HTTP_METHOD_GET:     method = "HTTP_METHOD_GET"; break;
+	case HTTP_METHOD_HEAD:    method = "HTTP_METHOD_HEAD"; break;
+	case HTTP_METHOD_POST:    method = "HTTP_METHOD_POST"; break;
+	case HTTP_METHOD_PUT:     method = "HTTP_METHOD_PUT"; break;
+	case HTTP_METHOD_DELETE:  method = "HTTP_METHOD_DELETE"; break;
+	case HTTP_METHOD_TRACE:   method = "HTTP_METHOD_TRACE"; break;
+	case HTTP_METHOD_CONNECT: method = "HTTP_METHOD_CONNECT"; break;
+	default:                  method = "HTTP_METHOD_UNKNOWN"; break;
+	}
+	printf("[Method] %s\n", method);
+      }
+    }
+#endif
+
+	free_ndpi_flow(flow);
+
+
+	if(verbose > 1) {
       if(enable_protocol_guess) {
-	if(flow->detected_protocol == 0 /* UNKNOWN */) {
-	  protocol = node_guess_undetected_protocol(thread_id, flow);
+	if(flow->detected_protocol.protocol == NDPI_PROTOCOL_UNKNOWN) {
+	  flow->detected_protocol.protocol = node_guess_undetected_protocol(thread_id, flow),
+	    flow->detected_protocol.master_protocol = NDPI_PROTOCOL_UNKNOWN;
 	}
       }
 
@@ -1292,9 +1285,9 @@ int main(int argc, char* argv[]) {
   }
 
   pfring_set_application_name(a_ring, "pfbridge-a");
-  pfring_set_direction(a_ring, rx_and_tx_direction);
-  pfring_set_socket_mode(a_ring, send_and_recv_mode);
-  //pfring_set_poll_watermark(a_ring, watermark);
+  pfring_set_direction(a_ring, rx_only_direction);
+  pfring_set_socket_mode(a_ring, recv_only_mode);
+  pfring_set_poll_watermark(a_ring, watermark);
   pfring_get_bound_device_ifindex(a_ring, &a_ifindex);
 
   /* Adding BPF filter */
@@ -1315,8 +1308,7 @@ int main(int argc, char* argv[]) {
   }
 
   pfring_set_application_name(b_ring, "pfbridge-b");
-  pfring_set_direction(b_ring, rx_and_tx_direction);
-  pfring_set_socket_mode(b_ring, send_and_recv_mode);
+  pfring_set_socket_mode(b_ring, send_only_mode);
   pfring_get_bound_device_ifindex(b_ring, &b_ifindex);
   
   /* Enable Sockets */
@@ -1347,35 +1339,32 @@ int main(int argc, char* argv[]) {
 
 	char *unk = "Unknown";
 
-   int aring = 0, bring = 0;
 
-   while(1) {
+  
+  
+	
+  while(1) {
     u_char *buffer;
     struct pfring_pkthdr hdr;
-    aring = pfring_recv(a_ring, &buffer, 0, &hdr, 1);
-    bring = pfring_recv(b_ring, &buffer, 0, &hdr, 1);
-
-    if((aring > 0) || (bring > 0)) {
-
-	  int rc;
-
+    
+    if(pfring_recv(a_ring, &buffer, 0, &hdr, 1) > 0) {
+      int rc;
+	  
 	  struct ip_header *ip_header=malloc(sizeof(ip_header));
 	  //struct ether_header *eh = (struct ether_header*)buffer;
 	  ip_header = (struct ip_header*)(buffer + sizeof(struct ether_header));
 	  pfring_parse_pkt((u_char*)buffer, (struct pfring_pkthdr*)&hdr, 5, 0, 0);
-
-
-
+	  
+	  
+	  int ipsize = 34;
 	  packet_processing(thread_id, 1, 0, ip_header, NULL,
-		 ip_header->frag_off, ip_header->tot_len, hdr.caplen);
-
-		//if(proto_app != NULL)
-		//	if(strcmp(proto_app, unk) != 0) printf("proto_app %s\n", proto_app);
-
-		//ip_header->tos = 5;
-
+		 ip_header->frag_off, ipsize, hdr.caplen);
+		
+		
+		
 		int i;
 		int appid = 0;
+		
 		if(proto_app != NULL){
 		if(strcmp(proto_app, "HTTP") == 0){
 				appid = 1;
@@ -1429,23 +1418,21 @@ int main(int argc, char* argv[]) {
 	  if(appid > 0){
 		//printf("AppID %u\n", appid);
 		  for (i = 0; i < rules_size; i++){
-			if(ip_header->daddr == class_rules[i].ip && class_rules[i].ruleid == appid){
+			if(ip_header->saddr == class_rules[i].ip && class_rules[i].ruleid == appid){
 				ip_header->tos = class_rules[i].tos;
 				printf("rule applied!!\n");
 			}
 		  }
 		}
 	}
-
-
-
-
+		
+		
+		
+		
       if(use_pfring_send) {
 
-	if(bring)
 	rc = pfring_send(b_ring, (char *) buffer, hdr.caplen, 1);
-	else rc = pfring_send(a_ring, (char *) buffer, hdr.caplen, 1);
-
+	
 	if(rc < 0){
 	int p =0;
 	}
@@ -1454,6 +1441,7 @@ int main(int argc, char* argv[]) {
 	  printf("Forwarded %d bytes packet\n", hdr.len);	
       } else {
 	rc = pfring_send_last_rx_packet(a_ring, b_ifindex);
+	
 	if(rc < 0)
 	  printf("pfring_send_last_rx_packet() error %d\n", rc);
 	else if(verbose)
@@ -1461,7 +1449,7 @@ int main(int argc, char* argv[]) {
       }
 
       if(rc >= 0) num_sent++;
-
+	
     }
   }
 
