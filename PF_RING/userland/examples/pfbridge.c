@@ -1286,8 +1286,8 @@ int main(int argc, char* argv[]) {
 
   pfring_set_application_name(a_ring, "pfbridge-a");
   pfring_set_direction(a_ring, rx_only_direction);
-  pfring_set_socket_mode(a_ring, recv_only_mode);
-  pfring_set_poll_watermark(a_ring, watermark);
+  pfring_set_socket_mode(a_ring, send_and_recv_mode);
+ // pfring_set_poll_watermark(a_ring, watermark);
   pfring_get_bound_device_ifindex(a_ring, &a_ifindex);
 
   /* Adding BPF filter */
@@ -1308,7 +1308,8 @@ int main(int argc, char* argv[]) {
   }
 
   pfring_set_application_name(b_ring, "pfbridge-b");
-  pfring_set_socket_mode(b_ring, send_only_mode);
+  pfring_set_direction(b_ring, rx_only_direction);
+  pfring_set_socket_mode(b_ring, send_and_recv_mode);
   pfring_get_bound_device_ifindex(b_ring, &b_ifindex);
   
   /* Enable Sockets */
@@ -1346,8 +1347,9 @@ int main(int argc, char* argv[]) {
   while(1) {
     u_char *buffer;
     struct pfring_pkthdr hdr;
-    
-    if(pfring_recv(a_ring, &buffer, 0, &hdr, 1) > 0) {
+    aring = pfring_recv(a_ring, &buffer, 0, &hdr, 1);
+    bring = pfring_recv(b_ring, &buffer, 0, &hdr, 1);
+    if(aring > 0 || bring > 0) {
       int rc;
 	  
 	  struct ip_header *ip_header=malloc(sizeof(ip_header));
@@ -1431,7 +1433,10 @@ int main(int argc, char* argv[]) {
 		
       if(use_pfring_send) {
 
-	rc = pfring_send(b_ring, (char *) buffer, hdr.caplen, 1);
+	if(aring > 0)
+		rc = pfring_send(b_ring, (char *) buffer, hdr.caplen, 1);
+	else
+		rc = pfring_send(a_ring, (char *) buffer, hdr.caplen, 1);
 	
 	if(rc < 0){
 	int p =0;
