@@ -1285,7 +1285,7 @@ int main(int argc, char* argv[]) {
   }
 
   pfring_set_application_name(a_ring, "pfbridge-a");
-  pfring_set_direction(a_ring, rx_only_direction);
+  pfring_set_direction(a_ring, rx_and_tx_direction);
   pfring_set_socket_mode(a_ring, send_and_recv_mode);
  // pfring_set_poll_watermark(a_ring, watermark);
   pfring_get_bound_device_ifindex(a_ring, &a_ifindex);
@@ -1308,7 +1308,7 @@ int main(int argc, char* argv[]) {
   }
 
   pfring_set_application_name(b_ring, "pfbridge-b");
-  pfring_set_direction(b_ring, rx_only_direction);
+  pfring_set_direction(b_ring, rx_and_tx_direction);
   pfring_set_socket_mode(b_ring, send_and_recv_mode);
   pfring_get_bound_device_ifindex(b_ring, &b_ifindex);
   
@@ -1341,7 +1341,7 @@ int main(int argc, char* argv[]) {
 	char *unk = "Unknown";
 
 
-  
+  int aring = 0, bring = 0;
   
 	
   while(1) {
@@ -1433,11 +1433,10 @@ int main(int argc, char* argv[]) {
 		
       if(use_pfring_send) {
 
-	if(aring > 0)
+
 		rc = pfring_send(b_ring, (char *) buffer, hdr.caplen, 1);
-	else
+
 		rc = pfring_send(a_ring, (char *) buffer, hdr.caplen, 1);
-	
 	if(rc < 0){
 	int p =0;
 	}
