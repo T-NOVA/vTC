@@ -7,8 +7,11 @@
 * Build nDPI folder
 
 > cd vtc
+
 > cd nDPI
+
 > sudo ./autogen.sh
+
 > sudo ./configure
 
 * Append file example/Makefile 
