@@ -18,6 +18,8 @@
 
 > LDFLAGS= -ljson-c
 
+* Compile nDPI 
+
 > sudo make
 
 > sudo make install
