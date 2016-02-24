@@ -1,39 +1,38 @@
-# README #
+# README 
 
-# Install necessary libraries
+* Install necessary libraries
 
-sudo apt-get install libtool pkg-config gcc libpcap-dev libnuma-dev linux-headers-$(uname -r) libjson0-dev libcurl4-gnutls-dev
+> sudo apt-get install libtool pkg-config gcc libpcap-dev libnuma-dev linux-headers-$(uname -r) libjson0-dev libcurl4-gnutls-dev
 
-# Build nDPI folder
+* Build nDPI folder
 
-cd vtc
+> cd vtc
+> cd nDPI
+> sudo ./autogen.sh
+> sudo ./configure
 
-cd nDPI
+* Append file example/Makefile 
 
-sudo ./autogen.sh
+> LDFLAGS= -ljson-c
 
-sudo ./configure
+> sudo make
 
-# add on the example/Makefile at the LDFLAGS= -ljson-c
+> sudo make install
 
-sudo make
+* Build PF_RING
 
-sudo make install
+> cd ../PF_RING
 
-# Build PF_RING
+> cd kernel 
 
-cd ../PF_RING
+> sudo make
 
-cd kernel 
+> sudo make install
 
-sudo make
+> sudo insmod ./pf_ring.ko
 
-sudo make install
+> cd userland/examples
 
-sudo insmod ./pf_ring.ko
+> sudo make
 
-cd userland/examples
-
-sudo make
-
-sudo ./pfbridge -a eth0 -b eth1
+> sudo ./pfbridge -a eth0 -b eth1
